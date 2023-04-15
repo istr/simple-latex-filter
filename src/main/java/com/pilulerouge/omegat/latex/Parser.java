@@ -33,13 +33,15 @@ public class Parser {
     private final LinkedList<ParserLevel> levels;
     private final CommandCenter commandCenter;
     private final LinkedList<String> environments;
+    private final boolean escape;
     private List<String> currentEnvironments;
     private int lastTagId; // New tags get ID from this one
     private boolean maskingTokens;
     private TokenType prevTokenType;
 
-    public Parser(CommandCenter cc) {
+    public Parser(CommandCenter cc, boolean esc) {
         commandCenter = cc;
+        escape = esc;
         levels = new LinkedList<>();
         lastTagId = 0;
         maskingTokens = false;
@@ -51,7 +53,7 @@ public class Parser {
         lastTagId = 0;
         maskingTokens = false;
         levels.clear();
-        levels.add(new ParserLevel(true, 0, true)); // Root level
+        levels.add(new ParserLevel(true, 0, escape)); // Root level
         environments.clear();
         currentEnvironments = Collections.emptyList();
         prevTokenType = null;
@@ -92,31 +94,6 @@ public class Parser {
                 token.setName(INLINE_MATH_COMMAND_NAME);
                 tagId = ++lastTagId;
                 break;
-            /*
-            case OPTIONS:
-                if (currentLevel.isOptionConsumer()) {
-                    currentLevel.setOptionConsumer(false);
-                    tokenTranslatable = false;
-                    break;
-                }
-                // Handle command options
-                if (prevTokenType == TokenType.COMMAND) {
-                    command = currentLevel.getCommand(); // Shouldn't fail I guess
-                    CommandType ct = command.getType();
-                    if (ct == CommandType.FORMAT) {
-                        tagId = currentLevel.getTagId();
-                    } else {
-                        tokenTranslatable = false;
-                    }
-                    break;
-                }
-                // Table row hints like [1ex]
-                if (!environments.isEmpty() && commandCenter.isTableEnvironment(environments.getLast())) {
-                    tokenTranslatable = false;
-                    break;
-                }
-                break;
-            */
             case OPTIONS_BEGIN:
             case GROUP_BEGIN:
                 boolean newLevelTranslatable = currentLevel.isTranslatable() && !currentLevel.isArgumentConsumer() && !currentLevel.isOptionConsumer();
@@ -170,11 +147,7 @@ public class Parser {
                 ParserLevel parentLevel = getCurrentLevel();
                 currentExternality = parentLevel.getExternality();
                 tagId = parentLevel.getTagId();
-/*
-                Log.log("GROUP OR OPT END " + (parentLevel.hasCommand() ? parentLevel.getCommand().getName() : "NO CMD"));
-                Log.log("ENVIRONMENT " + (environments.isEmpty() ? "NONE" : environments.getLast()));
-                Log.log("OPTION CONSUMER " + parentLevel.isOptionConsumer());
-*/
+
                 // Table row hints like [1ex]
                 if (tt == TokenType.OPTIONS_END && !environments.isEmpty() && commandCenter.isTableEnvironment(environments.getLast())) {
                     tokenTranslatable = false;

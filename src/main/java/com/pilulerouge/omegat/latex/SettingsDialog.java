@@ -55,9 +55,11 @@ final class SettingsDialog extends JDialog {
     static final String CONF_LOAD_USER_CONFIG = "loadUserConfig";
     static final String CONF_LATEX_COMMAND_COLOR = "latexCommandColor";
     static final String CONF_CURLY_BRACE_COLOR = "curlyBraceColor";
+    static final String CONF_ESCAPE = "escape";
 
     static final String DEFAULT_LATEX_COMMAND_COLOR = "#00A517";
     static final String DEFAULT_CURLY_BRACE_COLOR = "#389BCD";
+    static final String DEFAULT_ESCAPE = "false";
 
     private Map<String, String> options;
 
@@ -69,6 +71,7 @@ final class SettingsDialog extends JDialog {
     private JButton chooseCommandColorButton;
     private JButton chooseCurlyBraceColorButton;
     private JCheckBox loadUserConfigCheckBox;
+    private JCheckBox escapeCheckBox;
 
     /**
      * Constructor.
@@ -89,6 +92,7 @@ final class SettingsDialog extends JDialog {
         // Set localized UI text values
         setTitle(RB.getString("SETTINGS_TITLE"));
         loadUserConfigCheckBox.setText(RB.getString("SETTINGS_USER_CONFIG"));
+        escapeCheckBox.setText(RB.getString("SETTINGS_ESCAPE"));
         curlyBraceColorLabel.setText(RB.getString("SETTINGS_CURLY_BRACE_COLOR_EXAMPLE"));
         commandColorLabel.setText(RB.getString("SETTINGS_LATEX_COMMAND_COLOR_EXAMPLE"));
         chooseCurlyBraceColorButton.setText(RB.getString("SETTINGS_CHOOSE_COLOR_BUTTON"));
@@ -100,6 +104,9 @@ final class SettingsDialog extends JDialog {
         // Set values to control elements
         String loadUserConfig = options.getOrDefault(CONF_LOAD_USER_CONFIG, "false");
         loadUserConfigCheckBox.setSelected(Boolean.parseBoolean(loadUserConfig));
+
+        String escape = options.getOrDefault(CONF_ESCAPE, DEFAULT_ESCAPE);
+        escapeCheckBox.setSelected(Boolean.parseBoolean(escape));
 
         Color extraTagColor = Color.decode(options.getOrDefault(CONF_LATEX_COMMAND_COLOR, DEFAULT_LATEX_COMMAND_COLOR));
         commandColorLabel.setForeground(extraTagColor);
@@ -156,9 +163,11 @@ final class SettingsDialog extends JDialog {
 
     private void onOK() {
         boolean copyUserConfig = loadUserConfigCheckBox.isSelected();
+        boolean escape = escapeCheckBox.isSelected();
         if (copyUserConfig) {
             CommandCenter.copyConfig();
         }
+        options.put(CONF_ESCAPE, Boolean.toString(escape));
         options.put(CONF_LOAD_USER_CONFIG, Boolean.toString(copyUserConfig));
         options.put(CONF_LATEX_COMMAND_COLOR, colorToHex(commandColorLabel.getForeground()));
         options.put(CONF_CURLY_BRACE_COLOR, colorToHex(curlyBraceColorLabel.getForeground()));
@@ -198,6 +207,7 @@ final class SettingsDialog extends JDialog {
         buttonCancel = new JButton();
         buttonOK = new JButton();
         loadUserConfigCheckBox = new JCheckBox();
+        escapeCheckBox = new JCheckBox();
         chooseCommandColorButton = new JButton();
         chooseCurlyBraceColorButton = new JButton();
         commandColorLabel = new JLabel();
@@ -213,6 +223,7 @@ final class SettingsDialog extends JDialog {
         layout.setHorizontalGroup(
                 layout.createParallelGroup()
                         .addComponent(loadUserConfigCheckBox)
+                        .addComponent(escapeCheckBox)
                         .addGroup(
                                 layout.createSequentialGroup()
                                         .addComponent(commandColorLabel, GroupLayout.PREFERRED_SIZE,
@@ -238,6 +249,7 @@ final class SettingsDialog extends JDialog {
         layout.setVerticalGroup(
                 layout.createSequentialGroup()
                         .addComponent(loadUserConfigCheckBox)
+                        .addComponent(escapeCheckBox)
                         .addGroup(
                                 layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(commandColorLabel)

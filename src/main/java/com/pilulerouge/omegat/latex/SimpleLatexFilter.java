@@ -53,6 +53,7 @@ public class SimpleLatexFilter extends AbstractFilter {
     private BufferedWriter fileWriter;
     private final CommandCenter commandCenter;
     private final Parser parser;
+    private final boolean escape;
 
     private ListIterator<Token> tokenIterator;
 
@@ -94,8 +95,18 @@ public class SimpleLatexFilter extends AbstractFilter {
     }
 
     public SimpleLatexFilter() throws IOException {
+        this(getEscapeSetting());
+    }
+
+    public SimpleLatexFilter(boolean esc) throws IOException {
+        escape = esc;
         commandCenter = new CommandCenter();
-        parser = new Parser(commandCenter);
+        parser = new Parser(commandCenter, escape);    
+    }
+
+    private static boolean getEscapeSetting() {
+        Map<String, String> options = Util.getFilterOptions();
+        return Boolean.parseBoolean(options.getOrDefault(SettingsDialog.CONF_ESCAPE, SettingsDialog.DEFAULT_ESCAPE));        
     }
 
     @Override
@@ -140,7 +151,7 @@ public class SimpleLatexFilter extends AbstractFilter {
 
         ParserMark firstTokenMark = firstToken.getParserMark();
         int baseExternality = firstTokenMark.getExternality();
-        boolean escape = firstTokenMark.doEscape();
+        boolean escapeToken = escape && firstTokenMark.doEscape();
         List<String> envs = firstTokenMark.getEnvironments();
 
         StringBuilder sb = new StringBuilder();
@@ -198,7 +209,7 @@ public class SimpleLatexFilter extends AbstractFilter {
         }
 
         // Fetch initial translation
-        String translation = escapeAndProcessEntry(sb.toString(), escape, comment);
+        String translation = escapeAndProcessEntry(sb.toString(), escapeToken, comment);
 
         // Reverse tags fetching external translations at the same time
         Map<String, String> translatedTags = new HashMap<>();

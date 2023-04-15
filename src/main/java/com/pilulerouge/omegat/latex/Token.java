@@ -87,7 +87,7 @@ class Token implements Comparable<Token> {
      */
     public static Token getDummyToken(int position, int externality) {
         Token token = new Token(TokenType.DUMMY, position, position, null);
-        token.addParserMark(false, externality,0, true, Collections.emptyList());
+        token.addParserMark(false, externality, 0, false, Collections.emptyList());
         return token;
     }
 
