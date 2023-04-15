@@ -42,6 +42,7 @@ import org.omegat.util.LinebreakPreservingReader;
 import org.omegat.util.Log;
 
 import static com.pilulerouge.omegat.latex.Command.GROUP_COMMAND_NAME;
+import static com.pilulerouge.omegat.latex.Command.OPTION_COMMAND_NAME;
 import static com.pilulerouge.omegat.latex.Tokenizer.tokenizeDocument;
 import static com.pilulerouge.omegat.latex.Util.RB;
 
@@ -250,7 +251,7 @@ public class SimpleLatexFilter extends AbstractFilter {
         boolean noPlainArguments = command == null || !command.hasPlainArgument();
 
         // Avoid creating closed tokens for virtual group command
-        if (noPlainArguments || (tokens.size() == 1 && !Objects.equals(commandName, GROUP_COMMAND_NAME))) {
+        if (noPlainArguments || (tokens.size() == 1 && !Objects.equals(commandName, GROUP_COMMAND_NAME) && !Objects.equals(commandName, OPTION_COMMAND_NAME))) {
             if (tagId > 0) { // Closed tag case
                 tag = commandCenter.getFirstOrClosedTag(content, command, tagId, true);
             } else if (tagId < 0) { // Last tag case

@@ -31,6 +31,9 @@ public class Command {
     final static String GROUP_COMMAND_NAME = "virtual-group-command";
     final static String GROUP_COMMAND_TAG = "G0";
 
+    final static String OPTION_COMMAND_NAME = "virtual-option-command";
+    final static String OPTION_COMMAND_TAG = "O0";
+
     final static String INLINE_MATH_COMMAND_NAME = "inline-math";
     final static String INLINE_MATH_COMMAND_TAG = "Math";
 

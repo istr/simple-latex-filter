@@ -24,6 +24,7 @@ package com.pilulerouge.omegat.latex;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import org.omegat.util.Log;
 
 import static com.pilulerouge.omegat.latex.Command.*;
 
@@ -69,7 +70,7 @@ public class Parser {
         TokenType tt = token.getType();
 
         // Unregister command if this token is not options or an argument start
-        if (tt != TokenType.GROUP_BEGIN && tt != TokenType.OPTIONS && currentLevel.hasCommand()) {
+        if (tt != TokenType.GROUP_BEGIN && tt != TokenType.OPTIONS_BEGIN && currentLevel.hasCommand()) {
             currentLevel.unregisterCommand();
         }
 
@@ -91,9 +92,10 @@ public class Parser {
                 token.setName(INLINE_MATH_COMMAND_NAME);
                 tagId = ++lastTagId;
                 break;
+            /*
             case OPTIONS:
-                if (currentLevel.isOptionsConsumer()) {
-                    currentLevel.setOptionsConsumer(false);
+                if (currentLevel.isOptionConsumer()) {
+                    currentLevel.setOptionConsumer(false);
                     tokenTranslatable = false;
                     break;
                 }
@@ -114,10 +116,18 @@ public class Parser {
                     break;
                 }
                 break;
+            */
+            case OPTIONS_BEGIN:
             case GROUP_BEGIN:
-                boolean newLevelTranslatable = currentLevel.isTranslatable() && !currentLevel.isArgumentConsumer();
+                boolean newLevelTranslatable = currentLevel.isTranslatable() && !currentLevel.isArgumentConsumer() && !currentLevel.isOptionConsumer();
                 boolean newLevelEscapeContent = currentLevel.doEscape();
                 int newLevelExternality = currentExternality;
+
+                // Table row hints like [1ex]
+                if (tt == TokenType.OPTIONS_BEGIN && !environments.isEmpty() && commandCenter.isTableEnvironment(environments.getLast())) {
+                    tokenTranslatable = false;
+                    newLevelTranslatable = false;
+                }
 
                 if (currentLevel.hasArgumentsInQueue()) {
                     tagId = currentLevel.getTagId();
@@ -134,16 +144,25 @@ public class Parser {
                         tokenTranslatable = false;
                     }
                 } else if (newLevelTranslatable) {  // Create virtual group command on orphan group begin
-                    token.setName(GROUP_COMMAND_NAME);
-                    currentLevel.registerCommand(commandCenter.getGroupCommand());
+                    if (tt == TokenType.OPTIONS_BEGIN) {
+                        token.setName(OPTION_COMMAND_NAME);
+                        currentLevel.registerCommand(commandCenter.getOptionCommand());
+                    } else {
+                        token.setName(GROUP_COMMAND_NAME);
+                        currentLevel.registerCommand(commandCenter.getGroupCommand());
+                    }
                     currentLevel.fetchArgument(); // Remove argument right away
                     tagId = ++lastTagId;
                     currentLevel.setTagId(tagId);
                 } else if (currentLevel.isArgumentConsumer()) {
                     tokenTranslatable = false;
+                } else if (currentLevel.isOptionConsumer()) {
+                    currentLevel.setOptionConsumer(false);
+                    tokenTranslatable = false;
                 }
                 addLevel(newLevelTranslatable, newLevelExternality, newLevelEscapeContent);
                 break;
+            case OPTIONS_END:
             case GROUP_END:
                 if (!onRootLevel()) {
                     removeLevel();
@@ -151,12 +170,21 @@ public class Parser {
                 ParserLevel parentLevel = getCurrentLevel();
                 currentExternality = parentLevel.getExternality();
                 tagId = parentLevel.getTagId();
+/*
+                Log.log("GROUP OR OPT END " + (parentLevel.hasCommand() ? parentLevel.getCommand().getName() : "NO CMD"));
+                Log.log("ENVIRONMENT " + (environments.isEmpty() ? "NONE" : environments.getLast()));
+                Log.log("OPTION CONSUMER " + parentLevel.isOptionConsumer());
+*/
+                // Table row hints like [1ex]
+                if (tt == TokenType.OPTIONS_END && !environments.isEmpty() && commandCenter.isTableEnvironment(environments.getLast())) {
+                    tokenTranslatable = false;
+                }
 
                 if (parentLevel.hasCommand() && parentLevel.getCommand().getType() != CommandType.FORMAT) {
                     tokenTranslatable = false;
                 }
 
-                if (parentLevel.hasCommand() && !parentLevel.hasArgumentsInQueue() && !parentLevel.isArgumentConsumer()) {
+                if (parentLevel.hasCommand() && !parentLevel.hasArgumentsInQueue() && !parentLevel.isArgumentConsumer() && !parentLevel.isOptionConsumer()) {
                     parentLevel.unregisterCommand();
                     tagId = -tagId;  // Inverse tag id indicates last tag
                 }
@@ -169,7 +197,7 @@ public class Parser {
                     currentLevel.setArgumentConsumer(true);
                 }
                 if (commandCenter.isOptionConsumer(envName)) {
-                    currentLevel.setOptionsConsumer(true);
+                    currentLevel.setOptionConsumer(true);
                 }
 
                 currentEnvironments = Collections.unmodifiableList(environments);

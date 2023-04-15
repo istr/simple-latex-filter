@@ -29,7 +29,7 @@ import java.util.LinkedList;
  */
 public class ParserLevel {
 
-    private boolean optionsConsumer;               // Consume OPTIONS token or treat it as text?
+    private boolean optionConsumer;                // Consume all incoming options
     private boolean argumentConsumer;              // Consume all incoming arguments
     private final boolean translatable;            // How to treat tokens inside this level
     private Command command;                       // Name of current command in this level or null
@@ -43,7 +43,7 @@ public class ParserLevel {
         this.translatable = translatable;
         this.externality = externality;
         this.escape = escape;
-        this.optionsConsumer = false;
+        this.optionConsumer = false;
         this.argumentConsumer = false;
         this.command = null;
         this.commandArguments = new LinkedList<>();;
@@ -52,11 +52,11 @@ public class ParserLevel {
     public void registerCommand(Command command) {
         this.command = command;
         if (command.getType() == CommandType.CONTROL) {
-            optionsConsumer = true;
+            optionConsumer = true;
             argumentConsumer = true;
             commandArguments = new LinkedList<>();
         } else {
-            optionsConsumer = false;
+            optionConsumer = false;
             argumentConsumer = false;
             commandArguments = new LinkedList<>(Arrays.asList(command.getArgs()));
         }
@@ -66,7 +66,7 @@ public class ParserLevel {
         command = null;
         tagId = 0;
         argumentConsumer = false;
-        optionsConsumer = false;
+        optionConsumer = false;
         commandArguments.clear();
     }
 
@@ -86,16 +86,16 @@ public class ParserLevel {
         return translatable;
     }
 
-    public boolean isOptionsConsumer() {
-        return optionsConsumer;
+    public boolean isOptionConsumer() {
+        return optionConsumer;
     }
 
     /**
      * Used in unusual cases like `figure` environment
-     * @param optionsConsumer switch
+     * @param optionConsumer switch
      */
-    public void setOptionsConsumer(boolean optionsConsumer) {
-        this.optionsConsumer = optionsConsumer;
+    public void setOptionConsumer(boolean optionConsumer) {
+        this.optionConsumer = optionConsumer;
     }
 
     public boolean isArgumentConsumer() {

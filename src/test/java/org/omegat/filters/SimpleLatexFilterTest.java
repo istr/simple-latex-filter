@@ -50,6 +50,8 @@ public class SimpleLatexFilterTest extends TestFilterBase {
         assertEquals("Another footnote for tag numbering check.", entries.get(i++));
         assertEquals("Here is an <U1>unknown command</U1>.", entries.get(i++));
         assertEquals("Next <U2>unknown command</U2><G0>should</G0><G0>receive</G0> next numbered tag.", entries.get(i++));
+        assertEquals("Begin <U3>command</U3><G0>with an option</G0>.", entries.get(i++));
+        assertEquals("Begin <U4>same command without an option</U4>.", entries.get(i++));
         assertEquals("Now let's make empty footnote <f3/> and emphasis <e1></e1>", entries.get(i++));
         assertEquals("<f4/>", entries.get(i++));
         assertEquals("External content<M1/> with control<M2/>sequence.", entries.get(i++));
@@ -75,7 +77,7 @@ public class SimpleLatexFilterTest extends TestFilterBase {
         assertEquals("This is verbatim \\emph{text} % Not a comment \\verb+HERE+", entries.get(i++));
         assertEquals("A `verb` command test: <verb1/>", entries.get(i++));
         assertEquals("This~is~unescaped", entries.get(i++));
-        assertEquals("A <ls1>slight</ls1> and <ls2>heavy</ls2> letterspaced text.", entries.get(i++));
+        assertEquals("A <ls1>10</ls1><G0>slight</G0> and <ls1>100</ls1><G0>heavy</G0> letterspaced text.", entries.get(i++));
     }
 
     @Test

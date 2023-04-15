@@ -108,15 +108,19 @@ public class Tokenizer {
                 Pattern.compile("(?<!\\\\)\\\\end\\*?\\{([a-z]{2,})}"),
                 TokenType.ENV_END
         );
-        // Command / environment options
-        ORDERED_PATTERN_TOKENS.put(
-                Pattern.compile("(?<!\\\\)\\[.+?]"),
-                TokenType.OPTIONS
-        );
         // Commands
         ORDERED_PATTERN_TOKENS.put(
                 Pattern.compile("(?<!\\\\)\\\\([a-z]{2,})\\*?"),
                 TokenType.COMMAND
+        );
+        // Command / environment options boundaries
+        ORDERED_PATTERN_TOKENS.put(
+                Pattern.compile("(?<!\\\\)\\["),
+                TokenType.OPTIONS_BEGIN
+        );
+        ORDERED_PATTERN_TOKENS.put(
+                Pattern.compile("(?<!\\\\)]"),
+                TokenType.OPTIONS_END
         );
         // Group boundaries
         ORDERED_PATTERN_TOKENS.put(

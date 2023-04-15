@@ -228,8 +228,8 @@
     }
   ],
   "environments": {
-    "consumeOptions": ["figure", "table", "longtable"],
-    "consumeArguments": ["wrapfigure", "tabular", "tabularx", "longtable"],
-    "table": ["tabular", "tabularx", "longtable"]
+    "consumeOptions": ["figure", "longtable", "table", "tabular", "tabularx", "tabular*"],
+    "consumeArguments": ["longtable", "tabular", "tabularx", "tabular*", "wrapfigure"],
+    "table": ["longtable", "tabular", "tabularx"]
   }
 }

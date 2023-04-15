@@ -26,11 +26,13 @@ public class CommandArgument {
     private final boolean translatable;
     private final boolean external;
     private final boolean escape;
+    private final boolean optional; // delimited using TokenType.OPTIONS_BEGIN an TokenType.OPTIONS_END
 
-    public CommandArgument(final boolean translatable, final boolean external, final boolean escape) {
+    public CommandArgument(final boolean translatable, final boolean external, final boolean escape, final boolean optional) {
         this.translatable = translatable;
         this.external = external;
         this.escape = escape;
+        this.optional = optional;
     }
 
     public boolean isTranslatable() {
@@ -39,6 +41,10 @@ public class CommandArgument {
 
     public boolean isExternal() {
         return external;
+    }
+
+    public boolean isOptional() {
+        return optional;
     }
 
     public boolean doEscape() {

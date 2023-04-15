@@ -101,6 +101,14 @@ public class CommandCenter {
     }
 
     /**
+     * Get virtual command for LaTeX option.
+     * @return option command
+     */
+    public Command getOptionCommand() {
+        return getCommand(Command.OPTION_COMMAND_NAME);
+    }
+
+    /**
      * Get last tag created earlier with a first tag of this pair.
      * @param tagId tag id from parser mark
      * @return tag string
@@ -219,20 +227,21 @@ public class CommandCenter {
                     commandName = commandNode.asText();
                     tagName = null;
                     if (commandType == CommandType.CONTENT) {
-                        args.add(new CommandArgument(true, false, true));
+                        args.add(new CommandArgument(true, false, true, false));
                     }
                 } else {
                     commandName = commandNode.get("name").asText();
                     tagName = getJSONStringValue(commandNode, "tag");
                     JsonNode argsNode = commandNode.get("args");
                     if (argsNode == null && commandType != CommandType.CONTROL) {
-                        args.add(new CommandArgument(true, false, true));
+                        args.add(new CommandArgument(true, false, true, false));
                     } else if (argsNode != null) {
                         for (JsonNode argNode : argsNode) {
                             boolean translatable = argNode.get("translate").asBoolean();
                             boolean external = getJSONBooleanValue(argNode, "external", false);
                             boolean escape = getJSONBooleanValue(argNode, "escape", true);
-                            args.add(new CommandArgument(translatable, external, escape));
+                            boolean optional = getJSONBooleanValue(argNode, "optional", false);
+                            args.add(new CommandArgument(translatable, external, escape, optional));
                         }
                     }
                 }
@@ -245,7 +254,15 @@ public class CommandCenter {
                 Command.GROUP_COMMAND_NAME,
                 CommandType.FORMAT,
                 Command.GROUP_COMMAND_TAG,
-                Collections.singletonList(new CommandArgument(true, false, true))
+                Collections.singletonList(new CommandArgument(true, false, true, false))
+        );
+
+        // Add virtual option command
+        addCommand(
+                Command.OPTION_COMMAND_NAME,
+                CommandType.FORMAT,
+                Command.OPTION_COMMAND_TAG,
+                Collections.singletonList(new CommandArgument(true, false, true, true))
         );
 
         // Add unknown command
@@ -253,7 +270,7 @@ public class CommandCenter {
                 Command.UNKNOWN_COMMAND_NAME,
                 CommandType.FORMAT,
                 Command.UNKNOWN_COMMAND_TAG,
-                Collections.singletonList(new CommandArgument(true, false, true))
+                Collections.singletonList(new CommandArgument(true, false, true, true))
         );
 
         // Add mask command
